@@ -1,3 +1,5 @@
+import { isMeasurementSystem, type MeasurementSystem } from './units';
+
 export type Dimensions = Readonly<{ length: number; width: number; height: number }>;
 export type PlanMode = 'minimal' | 'comfort' | 'shopping';
 export type RiskSeverity = 'critical' | 'warning' | 'info';
@@ -40,12 +42,14 @@ export interface Risk {
   title: string;
   message: string;
   itemId?: string;
+  excessWeightKg?: number;
 }
 
 export interface PackingSnapshot {
   suitcase: Suitcase;
   items: PackingItem[];
   selectedPlan: PlanMode;
+  displayUnit?: MeasurementSystem;
 }
 
 export function itemVolume(item: Dimensions): number {
@@ -54,4 +58,11 @@ export function itemVolume(item: Dimensions): number {
 
 export function suitcaseVolume(suitcase: Dimensions): number {
   return suitcase.length * suitcase.width * suitcase.height;
+}
+
+export function normalizeSnapshot(snapshot: PackingSnapshot): PackingSnapshot {
+  return {
+    ...snapshot,
+    displayUnit: isMeasurementSystem(snapshot.displayUnit) ? snapshot.displayUnit : 'metric' as MeasurementSystem,
+  };
 }

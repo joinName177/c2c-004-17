@@ -13,6 +13,15 @@ export function validateSuitcase(suitcase: Suitcase): string[] {
   return errors;
 }
 
+export function validatePackingItem(item: Pick<PackingItem, 'length' | 'width' | 'height' | 'weight'>): string[] {
+  const errors: string[] = [];
+  if (!(item.length > 0)) errors.push('物品长度必须大于 0');
+  if (!(item.width > 0)) errors.push('物品宽度必须大于 0');
+  if (!(item.height > 0)) errors.push('物品高度必须大于 0');
+  if (!(item.weight > 0)) errors.push('物品重量必须大于 0');
+  return errors;
+}
+
 function ordered(items: PackingItem[], mode: PlanMode): PackingItem[] {
   return [...items].sort((a, b) => {
     const required = Number(b.mustHave) - Number(a.mustHave);

@@ -27,7 +27,15 @@ describe('LocalPlannerRepository', () => {
   it('returns sample data when storage is empty', () => {
     const result = new LocalPlannerRepository(storage).load();
     expect(result.value.items.length).toBeGreaterThan(0);
+    expect(result.value.displayUnit).toBe('metric');
     expect(result.warning).toBeUndefined();
+  });
+
+  it('defaults saved plans without a unit preference to metric', () => {
+    const sample = createSampleSnapshot();
+    const { displayUnit: _omitted, ...legacySnapshot } = sample;
+    storage.setItem('c2c-004.planner', JSON.stringify(legacySnapshot));
+    expect(new LocalPlannerRepository(storage).load().value.displayUnit).toBe('metric');
   });
 
   it('returns sample data and a warning for malformed JSON', () => {

@@ -36,4 +36,29 @@ describe('usePlanner', () => {
     expect(planner.plans.value.shopping.name).toBe('购物版');
     expect(repository.saved?.selectedPlan).toBe('shopping');
   });
+
+  it('persists a unit preference without changing canonical inputs or existing placements', () => {
+    const repository = new MemoryRepository();
+    const planner = usePlanner({ repository, printPort: { print() {} } });
+    const metricWeight = planner.currentPlan.value.totalWeight;
+    const metricPlacement = JSON.parse(JSON.stringify(planner.currentPlan.value.placements[0]));
+    expect(planner.displayUnit.value).toBe('metric');
+    expect(planner.setDisplayUnit('imperial')).toBe(true);
+    expect(planner.displayUnit.value).toBe('imperial');
+    expect(repository.saved?.displayUnit).toBe('imperial');
+    expect(repository.saved?.suitcase.length).toBe(52);
+    expect(planner.currentPlan.value.totalWeight).toBe(metricWeight);
+    expect(planner.currentPlan.value.placements[0]).toEqual(metricPlacement);
+  });
+
+  it('does not switch units or accept invalid item values while an editor is pending', () => {
+    const repository = new MemoryRepository();
+    const planner = usePlanner({ repository, printPort: { print() {} } });
+    planner.setPendingInput(true);
+    expect(planner.setDisplayUnit('imperial')).toBe(false);
+    expect(planner.displayUnit.value).toBe('metric');
+    const initialCount = planner.state.items.length;
+    planner.addItem({ id: 'bad', name: '坏数据', category: '其他', length: 0, width: 1, height: 1, weight: 1, priority: 1, mustHave: false });
+    expect(planner.state.items).toHaveLength(initialCount);
+  });
 });

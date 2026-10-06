@@ -39,4 +39,12 @@ describe('detectRisks', () => {
     const plan = { ...basePlan(), unplaced: [{ item: required, reason: '空间不足' }] };
     expect(detectRisks(plan, suitcase, [required])).toContainEqual(expect.objectContaining({ id: 'missing-passport', severity: 'critical' }));
   });
+
+  it('uses unrounded physical weight for the exact overload boundary', () => {
+    const atLimit = { ...basePlan(), totalWeight: 2 };
+    const justOver = { ...basePlan(), totalWeight: 2.004 };
+    const limitCase = { ...suitcase, maxWeight: 2 };
+    expect(detectRisks(atLimit, limitCase, []).some((risk) => risk.id === 'overweight')).toBe(false);
+    expect(detectRisks(justOver, limitCase, []).some((risk) => risk.id === 'overweight')).toBe(true);
+  });
 });
