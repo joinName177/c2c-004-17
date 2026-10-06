@@ -1,3 +1,5 @@
+import type { UnitSystem } from './units';
+
 export type Dimensions = Readonly<{ length: number; width: number; height: number }>;
 export type PlanMode = 'minimal' | 'comfort' | 'shopping';
 export type RiskSeverity = 'critical' | 'warning' | 'info';
@@ -40,12 +42,16 @@ export interface Risk {
   title: string;
   message: string;
   itemId?: string;
+  /** 与限值相关的物理差值（千克基础值），供界面按当前单位展示；判定不依赖展示精度。 */
+  weightOverrunKg?: number;
 }
 
 export interface PackingSnapshot {
   suitcase: Suitcase;
   items: PackingItem[];
   selectedPlan: PlanMode;
+  /** 展示单位制；缺失或无法识别时按公制处理，基础值永远是厘米 / 千克。 */
+  unit?: UnitSystem;
 }
 
 export function itemVolume(item: Dimensions): number {

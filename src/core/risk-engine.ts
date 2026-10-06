@@ -5,7 +5,7 @@ export function detectRisks(plan: PackingPlan, suitcase: Suitcase, items: Packin
   const risks: Risk[] = [];
   const byId = new Map(items.map((item) => [item.id, item]));
 
-  if (plan.totalWeight > suitcase.maxWeight) risks.push({ id: 'overweight', severity: 'critical', title: '行李超重', message: `超出承重 ${(plan.totalWeight - suitcase.maxWeight).toFixed(1)} kg，请移除重物。` });
+  if (plan.totalWeight > suitcase.maxWeight) risks.push({ id: 'overweight', severity: 'critical', title: '行李超重', message: '行李总重超过箱体承重，请移除重物。', weightOverrunKg: plan.totalWeight - suitcase.maxWeight });
   else if (plan.totalWeight / suitcase.maxWeight > 0.9) risks.push({ id: 'near-weight', severity: 'warning', title: '接近承重上限', message: '建议预留至少 10% 承重余量。' });
   if (plan.capacityRatio > 0.9) risks.push({ id: 'high-volume', severity: 'warning', title: '空间接近满载', message: '空间利用率超过 90%，返程新增物品可能无法装入。' });
 

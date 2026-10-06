@@ -1,4 +1,5 @@
 import { createSampleSnapshot } from '../core/sample-data';
+import { normalizeUnit } from '../core/units';
 import type { PackingSnapshot } from '../core/models';
 import type { LoadResult, PlannerRepository } from '../ports/planner-repository.port';
 
@@ -11,7 +12,10 @@ export class LocalPlannerRepository implements PlannerRepository {
     const raw = this.storage.getItem(KEY);
     if (!raw) return { value: createSampleSnapshot() };
     try {
-      return { value: JSON.parse(raw) as PackingSnapshot };
+      const snapshot = JSON.parse(raw) as PackingSnapshot;
+      // 旧规划没有 unit 字段（或字段损坏）时默认公制，基础值不做任何换算。
+      snapshot.unit = normalizeUnit(snapshot.unit);
+      return { value: snapshot };
     } catch {
       return { value: createSampleSnapshot(), warning: '本地数据无法读取，已恢复示例。' };
     }

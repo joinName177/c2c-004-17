@@ -36,4 +36,21 @@ describe('LocalPlannerRepository', () => {
     expect(result.value.items.length).toBeGreaterThan(0);
     expect(result.warning).toContain('已恢复示例');
   });
+
+  it('defaults legacy snapshots without a unit field to metric without touching base values', () => {
+    const legacy = createSampleSnapshot();
+    delete legacy.unit;
+    storage.setItem('c2c-004.planner', JSON.stringify(legacy));
+    const result = new LocalPlannerRepository(storage).load();
+    expect(result.value.unit).toBe('metric');
+    expect(result.value.suitcase.length).toBe(52);
+    expect(result.warning).toBeUndefined();
+  });
+
+  it('repairs an unrecognized unit field to metric', () => {
+    const sample = createSampleSnapshot() as unknown as Record<string, unknown>;
+    sample.unit = 'furlong';
+    storage.setItem('c2c-004.planner', JSON.stringify(sample));
+    expect(new LocalPlannerRepository(storage).load().value.unit).toBe('metric');
+  });
 });
